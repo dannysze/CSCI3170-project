@@ -1,3 +1,4 @@
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 
@@ -34,9 +35,9 @@ public class App {
 		// }
 		
 
-		CreateTable();
-		post();
-		
+		// CreateTable();
+		// post();
+		createTables();
 	}
 
 	public static Connection connect() {
@@ -69,6 +70,7 @@ public class App {
 			System.out.println("VendorError: " + e.getErrorCode());
 		} finally {
 			System.out.println("Table created successfully!");
+			
 		}
 	}
 
@@ -90,5 +92,44 @@ public class App {
 		}
 	}
 
-	
+	public static void createTables() throws Exception {
+
+		Connection con = connect();
+		try {
+			PreparedStatement create = con.prepareStatement("CREATE TABLE IF NOT EXISTS Drivers(ID integer PRIMARY KEY, Name varchar(30) not null, Vehicle_ID varchar(6) not null, Driving_years integer);");
+			create.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		} finally {
+			System.out.println("Table created successfully!");
+		}
+
+		String filename = "./test_data/test_data/drivers.csv";
+		File file = new File(filename);
+		try {
+			Scanner inputStream = new Scanner(file);
+			PreparedStatement insert = null;
+			while (inputStream.hasNext()) {
+				String data = inputStream.nextLine();
+				String[] values = data.split(",");
+				int id = Integer.parseInt(values[0]);
+				int drivingYears = Integer.parseInt(values[3]);
+				insert = con.prepareStatement("INSERT INTO Drivers VALUES ("+id+", '"+values[1]+"', '"+values[2]+"', "+drivingYears+")");
+				insert.executeUpdate();
+			}
+			inputStream.close();
+		} catch (FileNotFoundException e) {
+			System.out.println(e);
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		} finally {
+			insert.close();
+			System.out.println("Drivers tables are created");
+		}
+
+	}
 }
