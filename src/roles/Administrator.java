@@ -2,12 +2,56 @@ package roles;
 import java.util.*;
 import java.io.*;
 import java.sql.*;
+import database.*;
 
 public class Administrator {
-  
-	public static void createTables() throws Exception {
 
-		Connection con = App.connect();
+  public static void service() throws Exception {
+
+    Scanner keyboard = new Scanner(System.in);
+
+    services: while (true) {
+      System.out.println("Administrator, what would you like to do?");
+      System.out.println("1. Create tables");
+      System.out.println("2. Delete tables");
+      System.out.println("3. Load data");
+      System.out.println("4. Check data");
+      System.out.println("5. Go back");
+      System.out.println("Please enter [1-5]");
+      
+      int input = 0;
+      try {
+        input = keyboard.nextInt();
+      } catch (Exception e) {
+        System.out.println("Invalid input! Please try again.");
+      } finally {
+        switch (input) {
+          case 1: 
+            createTables();
+            break;
+          case 2: 
+            deleteTables();
+            break;
+          case 3: 
+            loadData();
+            break;
+          case 4: 
+            checkData();
+            break;
+          case 5: 
+            break services;
+          default: 
+            System.out.println("Invalid input! Please try again.");
+            break;
+        }
+      }
+    }
+    keyboard.close();
+  }
+  
+	private static void createTables() throws Exception {
+
+		Connection con = LoadServer.connect();
 		try {
 			PreparedStatement create = con.prepareStatement("CREATE TABLE IF NOT EXISTS Drivers(ID integer PRIMARY KEY, Name varchar(30) not null, Vehicle_ID varchar(6) not null, Driving_years integer);");
 			create.executeUpdate();
@@ -44,5 +88,17 @@ public class Administrator {
 		} finally {
 			System.out.println("Drivers tables are created");
 		}
-	}
+  }
+  
+  private static void deleteTables() throws Exception {
+
+  }
+
+  private static void loadData() throws Exception {
+
+  }
+
+  private static void checkData() throws Exception {
+
+  }
 }
