@@ -6,9 +6,9 @@ import database.*;
 
 public class Administrator {
 
-  public static void service() throws Exception {
+  public static void service(Scanner keyboard) throws Exception {
 
-    Scanner keyboard = new Scanner(System.in);
+    // Scanner keyboard = new Scanner(System.in);
 
     services: while (true) {
       System.out.println("Administrator, what would you like to do?");
@@ -23,7 +23,7 @@ public class Administrator {
       try {
         input = keyboard.nextInt();
       } catch (Exception e) {
-        System.out.println("Invalid input! Please try again.");
+        keyboard.next();
       } finally {
         switch (input) {
           case 1: 
@@ -46,7 +46,6 @@ public class Administrator {
         }
       }
     }
-    keyboard.close();
   }
   
 	private static void createTables() throws Exception {

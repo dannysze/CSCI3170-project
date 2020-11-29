@@ -1,7 +1,7 @@
 package database;
 import java.sql.*;
 
-public class LoadServer {
+public class LoadServer { // Get Connection Obj 
   
 	public static Connection connect() {
 		String dbAddress = "jdbc:mysql://projgw.cse.cuhk.edu.hk:2633/group13";

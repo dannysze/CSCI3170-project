@@ -24,20 +24,20 @@ public class App {
 			try {
 				input = keyboard.nextInt();
 			} catch (Exception e) {
-				System.out.println("Invalid input! Please try again.");
+				keyboard.next();
 			} finally {
 				switch (input) {
 					case 1: 
-						Administrator.service();
+						Administrator.service(keyboard);
 						break;
 					case 2: 
-						Passenger.service();
+						Passenger.service(keyboard);
 						break;
 					case 3: 
-						Drivers.service();
+						Drivers.service(keyboard);
 						break;
 					case 4: 
-						Manager.service();
+						Manager.service(keyboard);
 						break;
 					case 5: 
 						break services;

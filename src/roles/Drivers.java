@@ -6,9 +6,7 @@ import database.*;
 
 public class Drivers {
   
-  public static void service() throws Exception {
-
-		Scanner keyboard = new Scanner(System.in);
+  public static void service(Scanner keyboard) throws Exception {
 		
 		services: while (true) {
 			System.out.println("Administrator, what would you like to do?");
@@ -22,7 +20,7 @@ public class Drivers {
 			try {
 				input = keyboard.nextInt();
 			} catch (Exception e) {
-				System.out.println("Invalid input! Please try again.");
+				keyboard.next();
 			} finally {
 				switch (input) {
 					case 1: 
@@ -42,7 +40,6 @@ public class Drivers {
 				}
 			}
 		}
-		keyboard.close();
 	}
 	
 	private static void searchRequest() throws Exception {
