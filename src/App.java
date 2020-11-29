@@ -3,6 +3,7 @@ import java.sql.*;
 public class App {
 	public static void main(String[] args) throws Exception {
 		System.out.println("Hello, World!");
+		connect();
 	}
 
 	public static Connection connect() {
@@ -21,5 +22,6 @@ public class App {
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
+		return null;
 	}
 }
