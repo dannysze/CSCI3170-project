@@ -127,9 +127,7 @@ public class App {
 			System.out.println("SQLState: " + e.getSQLState());
 			System.out.println("VendorError: " + e.getErrorCode());
 		} finally {
-			insert.close();
 			System.out.println("Drivers tables are created");
 		}
-
 	}
 }
