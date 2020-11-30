@@ -9,7 +9,7 @@ public class Passenger {
   public static void service(Scanner keyboard) throws Exception {
 
     services: while (true) {
-      System.out.println("Administrator, what would you like to do?");
+      System.out.println("Passenger, what would you like to do?");
       System.out.println("1. Request a ride");
       System.out.println("2. Check trip records");
       System.out.println("3. Go back");

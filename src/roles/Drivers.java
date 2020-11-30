@@ -9,7 +9,7 @@ public class Drivers {
   public static void service(Scanner keyboard) throws Exception {
 		
 		services: while (true) {
-			System.out.println("Administrator, what would you like to do?");
+			System.out.println("Driver, what would you like to do?");
 			System.out.println("1. Search requests");
 			System.out.println("2. Take a request");
 			System.out.println("3. Finish a trip");
