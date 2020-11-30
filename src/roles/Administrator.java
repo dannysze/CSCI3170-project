@@ -2,6 +2,9 @@ package roles;
 import java.util.*;
 import java.io.*;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import database.*;
 
 public class Administrator {
@@ -33,7 +36,7 @@ public class Administrator {
             deleteTables();
             break;
           case 3: 
-            loadData();
+            loadData(keyboard);
             break;
           case 4: 
             checkData();
@@ -50,54 +53,214 @@ public class Administrator {
   
 	private static void createTables() throws Exception {
 
-		Connection con = LoadServer.connect();
-		try {
-			PreparedStatement create = con.prepareStatement("CREATE TABLE IF NOT EXISTS Drivers(ID integer PRIMARY KEY, Name varchar(30) not null, Vehicle_ID varchar(6) not null, Driving_years integer);");
-			create.executeUpdate();
-      create.close();
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("SQLState: " + e.getSQLState());
-			System.out.println("VendorError: " + e.getErrorCode());
-		} finally {
-			System.out.println("Table created successfully!");
-		}
+    String[] createTables = { "CREATE TABLE IF NOT EXISTS Drivers(DID integer PRIMARY KEY, Dname varchar(30) NOT NULL, VID varchar(6) NOT NULL, Driving_years integer);",
+      "CREATE TABLE IF NOT EXISTS Passengers(PID integer PRIMARY KEY, Pname varchar(30) NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS Vehicles(VID varchar(6) PRIMARY KEY, Model varchar(30) NOT NULL, Seats integer NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS Taxi_stops(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS Trips(TID integer PRIMARY KEY, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Drivers(DID), FOREIGN KEY (PID) REFERENCES Passengers(PID));",
+      "CREATE TABLE IF NOT EXISTS Requests(RID integer PRIMARY KEY, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(3) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passengers(PID));"
+    };
+    Connection con = LoadServer.connect();
+    for (int i = 0; i < createTables.length; i++) {
+      try (PreparedStatement create = con.prepareStatement(createTables[i])) {
+        create.executeUpdate();
+      } catch (SQLException e) {
+        System.out.println("SQLException: " + e.getMessage());
+        System.out.println("SQLState: " + e.getSQLState());
+        System.out.println("VendorError: " + e.getErrorCode());
+      } finally {
+        System.out.print("\rProcessing...");
+      }
+    }
+    System.out.print("Done! Tables are created!\n");
+    con.close();
 
-		String filename = "./test_data/test_data/drivers.csv";
-		File file = new File(filename);
-		try {
-			Scanner inputStream = new Scanner(file);
-			PreparedStatement insert = null;
-			while (inputStream.hasNext()) {
-				String data = inputStream.nextLine();
-				String[] values = data.split(",");
-				int id = Integer.parseInt(values[0]);
-				int drivingYears = Integer.parseInt(values[3]);
-				insert = con.prepareStatement("INSERT INTO Drivers VALUES ("+id+", '"+values[1]+"', '"+values[2]+"', "+drivingYears+")");
-        insert.executeUpdate();
-        insert.close();
-			}
-			inputStream.close();
-		} catch (FileNotFoundException e) {
-			System.out.println(e);
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("SQLState: " + e.getSQLState());
-			System.out.println("VendorError: " + e.getErrorCode());
-		} finally {
-			System.out.println("Drivers tables are created");
-		}
   }
   
   private static void deleteTables() throws Exception {
-
+    String[] deleteTables = { "Requests", "Trips", "Vehicles", "Taxi_stops", "Drivers", "Passengers"};
+    Connection con = LoadServer.connect();
+    for (int i = 0; i < deleteTables.length; i++) {
+      try (PreparedStatement delete = con.prepareStatement("DROP TABLE IF EXISTS " +deleteTables[i])) {
+      delete.executeUpdate();
+      } catch (SQLException e) {
+        System.out.println("SQLException: " + e.getMessage());
+        System.out.println("SQLState: " + e.getSQLState());
+        System.out.println("VendorError: " + e.getErrorCode());
+      } finally {
+        System.out.print("\rProcessing...");
+      }
+    }
+    System.out.print("Done! Tables are deleted!\n");
+    con.close();
   }
+  
+  private static void loadData(Scanner keyboard) throws Exception {
+    Connection con = LoadServer.connect();
+    System.out.println("Please enter the folder path");
+    String path = keyboard.next();
+    String filename = path + "/drivers.csv";
+    File file = new File(filename);
+    try {
+      Scanner inputStream = new Scanner(file);
+      while (inputStream.hasNext()) {
+        String data = inputStream.nextLine();
+        String[] values = data.split(",");
+        int id = Integer.parseInt(values[0]);
+        int drivingYears = Integer.parseInt(values[3]);
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Drivers VALUES ("+id+", '"+values[1]+"', '"+values[2]+"', "+drivingYears+");")) {
+          insert.executeUpdate();
+          insert.close();
+        } catch (SQLException e) {
+          System.out.println("SQLException: " + e.getMessage());
+          System.out.println("SQLState: " + e.getSQLState());
+          System.out.println("VendorError: " + e.getErrorCode());
+        } finally {
+          System.out.print("\rProcessing... ");
+        }
+      }
+      inputStream.close();
+    } catch (FileNotFoundException e) {
+      System.out.println(e);
+    }
 
-  private static void loadData() throws Exception {
+    filename = path + "/passengers.csv";
+    file = new File(filename);
+    try {
+      Scanner inputStream = new Scanner(file);
+      while (inputStream.hasNext()) {
+        String data = inputStream.nextLine();
+        String[] values = data.split(",");
+        int id = Integer.parseInt(values[0]);
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Passengers VALUES ("+id+", '"+values[1]+"');")) {
+          insert.executeUpdate();
+          insert.close();
+        } catch (SQLException e) {
+          System.out.println("SQLException: " + e.getMessage());
+          System.out.println("SQLState: " + e.getSQLState());
+          System.out.println("VendorError: " + e.getErrorCode());
+        } finally {
+          System.out.print("\rProcessing... ");
+        }
+      }
+      inputStream.close();
+    } catch (FileNotFoundException e) {
+      System.out.println(e);
+    }
 
+    filename = path + "/taxi_stops.csv";
+    file = new File(filename);
+    try {
+      Scanner inputStream = new Scanner(file);
+      while (inputStream.hasNext()) {
+        String data = inputStream.nextLine();
+        String[] values = data.split(",");
+        int location_x = Integer.parseInt(values[1]);
+        int location_y = Integer.parseInt(values[2]);
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Taxi_stops VALUES ('"+values[0]+"', "+location_x+", "+location_y+");")) {
+          insert.executeUpdate();
+          insert.close();
+        } catch (SQLException e) {
+          System.out.println("SQLException: " + e.getMessage());
+          System.out.println("SQLState: " + e.getSQLState());
+          System.out.println("VendorError: " + e.getErrorCode());
+        } finally {
+          System.out.print("\rProcessing... ");
+        }
+      }
+      inputStream.close();
+    } catch (FileNotFoundException e) {
+      System.out.println(e);
+    }
+
+    filename = path + "/trips.csv";
+    file = new File(filename);
+    try {
+      Scanner inputStream = new Scanner(file);
+      while (inputStream.hasNext()) {
+        String data = inputStream.nextLine();
+        String[] values = data.split(",");
+        int tid = Integer.parseInt(values[0]);
+        int did = Integer.parseInt(values[1]);
+        int pid = Integer.parseInt(values[2]);
+        int fee = Integer.parseInt(values[7]);
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trips VALUES ("+tid+", "+did+", "+pid+", '"+values[3]+"', '"+values[4]+"', '"+values[5]+"', '"+values[6]+"', "+fee+");")) {
+          insert.executeUpdate();
+          insert.close();
+        } catch (SQLException e) {
+          System.out.println("SQLException: " + e.getMessage());
+          System.out.println("SQLState: " + e.getSQLState());
+          System.out.println("VendorError: " + e.getErrorCode());
+        } finally {
+          System.out.print("\rProcessing... ");
+        }
+      }
+      inputStream.close();
+    } catch (FileNotFoundException e) {
+      System.out.println(e);
+    }
+
+    filename = path + "/vehicles.csv";
+    file = new File(filename);
+    try {
+      Scanner inputStream = new Scanner(file);
+      while (inputStream.hasNext()) {
+        String data = inputStream.nextLine();
+        String[] values = data.split(",");
+        int seats = Integer.parseInt(values[2]);
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Vehicles VALUES ('"+values[0]+"', '"+values[1]+"', "+seats+");")) {
+          insert.executeUpdate();
+          insert.close();
+        } catch (SQLException e) {
+          System.out.println("SQLException: " + e.getMessage());
+          System.out.println("SQLState: " + e.getSQLState());
+          System.out.println("VendorError: " + e.getErrorCode());
+        } finally {
+          System.out.print("\rProcessing... ");
+        }
+      }
+      inputStream.close();
+    } catch (FileNotFoundException e) {
+      System.out.println(e);
+    }
+
+    System.out.print("Data is loaded!\n");
   }
 
   private static void checkData() throws Exception {
+    System.out.println("Numbers of record in each table: \n");
+
+    String[] checkTables = { "Vehicles", "Passengers", "Drivers", "Trips", "Requests", "Taxi_stops"};
+    Connection con = LoadServer.connect();
+    Statement stmt = null;
+    ResultSet rs = null;
+    for (int i = 0; i < checkTables.length; i++) {
+      try {
+        stmt = con.createStatement();
+        rs = stmt.executeQuery("SELECT COUNT(*) AS TOTAL FROM " +checkTables[i]+";");
+        rs.next();
+        System.out.println(checkTables[i]+": "+rs.getInt("TOTAL"));
+      } catch (SQLException e) {
+        System.out.println("SQLException: " + e.getMessage());
+        System.out.println("SQLState: " + e.getSQLState());
+        System.out.println("VendorError: " + e.getErrorCode());
+      } finally {
+        if (rs != null) {
+          try {
+            rs.close();
+          } catch (SQLException e) {}
+          rs = null;
+        }
+
+        if (stmt != null) {
+          try {
+            stmt.close();
+          } catch (SQLException e) {}
+          stmt = null;
+        }
+      }
+    }
+    con.close();
 
   }
 }
