@@ -69,8 +69,13 @@ public class Passenger {
             System.out.println(questions[i]);
             try{
               sc = keyboard.nextLine().strip();
-              if(sc.matches("\\d+"))
-                  input = Integer.parseInt(sc);
+              if(sc.matches("\\d+")){
+                input = Integer.parseInt(sc);
+                if((i==1)&&!(input>0)){
+                  System.out.println("[ERROR] Invalid input.");
+                  continue;
+                }
+              }
               else{
                 if((i==0)||(i==1)||((i==5)&&(!sc.isEmpty())))
                 {
