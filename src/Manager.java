@@ -1,8 +1,6 @@
-package roles;
 import java.util.*;
 import java.io.*;
 import java.sql.*;
-import database.*;
 
 public class Manager {
   
@@ -62,7 +60,7 @@ public class Manager {
         continue;
       }
 
-      if (max < 0 || max < min) { // Upper bound missing
+      if (max <= 0 || max < min) { // Upper bound missing
         System.out.println("[ERROR] Invalid input.");
       } else break;
     }

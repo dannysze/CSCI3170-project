@@ -1,9 +1,7 @@
 import java.sql.*;
 import java.util.*;
-import roles.*;
-import database.*;
 
-public class App {
+public class Main {
 	public static void main(String[] args) throws Exception {
 		
 		Connection conn = LoadServer.connect();

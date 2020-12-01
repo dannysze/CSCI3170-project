@@ -1,4 +1,3 @@
-package database;
 import java.sql.*;
 
 public class LoadServer { // Get Connection Obj 

@@ -1,8 +1,6 @@
-package roles;
 import java.util.*;
 import java.io.*;
 import java.sql.*;
-import database.*;
 
 public class Passenger {
 
