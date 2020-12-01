@@ -58,7 +58,7 @@ public class Administrator {
       "CREATE TABLE IF NOT EXISTS Vehicles(VID varchar(6) PRIMARY KEY, Model varchar(30) NOT NULL, Seats integer NOT NULL);",
       "CREATE TABLE IF NOT EXISTS Taxi_stops(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
       "CREATE TABLE IF NOT EXISTS Trips(TID integer PRIMARY KEY, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Drivers(DID), FOREIGN KEY (PID) REFERENCES Passengers(PID));",
-      "CREATE TABLE IF NOT EXISTS Requests(RID integer PRIMARY KEY, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(3) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passengers(PID));"
+      "CREATE TABLE IF NOT EXISTS Requests(RID integer PRIMARY KEY AUTO_INCREMENT, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(1) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passengers(PID));"
     };
     Connection con = LoadServer.connect();
     for (int i = 0; i < createTables.length; i++) {
@@ -96,6 +96,9 @@ public class Administrator {
   }
   
   private static void loadData(Scanner keyboard) throws Exception {
+    //if all data is sucessfully loaded, then this variable remains true.If not then false.
+    boolean success = true;
+
     Connection con = LoadServer.connect();
     System.out.println("Please enter the folder path");
     String path = keyboard.next();
@@ -115,6 +118,8 @@ public class Administrator {
           System.out.println("SQLException: " + e.getMessage());
           System.out.println("SQLState: " + e.getSQLState());
           System.out.println("VendorError: " + e.getErrorCode());
+
+          success = false;
         } finally {
           System.out.print("\rProcessing... ");
         }
@@ -122,6 +127,7 @@ public class Administrator {
       inputStream.close();
     } catch (FileNotFoundException e) {
       System.out.println(e);
+      success = false;
     }
 
     filename = path + "/passengers.csv";
@@ -139,6 +145,8 @@ public class Administrator {
           System.out.println("SQLException: " + e.getMessage());
           System.out.println("SQLState: " + e.getSQLState());
           System.out.println("VendorError: " + e.getErrorCode());
+
+          success = false;
         } finally {
           System.out.print("\rProcessing... ");
         }
@@ -146,6 +154,7 @@ public class Administrator {
       inputStream.close();
     } catch (FileNotFoundException e) {
       System.out.println(e);
+      success = false;
     }
 
     filename = path + "/taxi_stops.csv";
@@ -164,6 +173,8 @@ public class Administrator {
           System.out.println("SQLException: " + e.getMessage());
           System.out.println("SQLState: " + e.getSQLState());
           System.out.println("VendorError: " + e.getErrorCode());
+
+          success = false;
         } finally {
           System.out.print("\rProcessing... ");
         }
@@ -171,6 +182,7 @@ public class Administrator {
       inputStream.close();
     } catch (FileNotFoundException e) {
       System.out.println(e);
+      success = false;
     }
 
     filename = path + "/trips.csv";
@@ -191,6 +203,8 @@ public class Administrator {
           System.out.println("SQLException: " + e.getMessage());
           System.out.println("SQLState: " + e.getSQLState());
           System.out.println("VendorError: " + e.getErrorCode());
+
+          success = false;
         } finally {
           System.out.print("\rProcessing... ");
         }
@@ -198,6 +212,7 @@ public class Administrator {
       inputStream.close();
     } catch (FileNotFoundException e) {
       System.out.println(e);
+      success = false;
     }
 
     filename = path + "/vehicles.csv";
@@ -215,6 +230,8 @@ public class Administrator {
           System.out.println("SQLException: " + e.getMessage());
           System.out.println("SQLState: " + e.getSQLState());
           System.out.println("VendorError: " + e.getErrorCode());
+
+          success = false;
         } finally {
           System.out.print("\rProcessing... ");
         }
@@ -222,9 +239,11 @@ public class Administrator {
       inputStream.close();
     } catch (FileNotFoundException e) {
       System.out.println(e);
+      success = false;
     }
 
-    System.out.print("Data is loaded!\n");
+    if(success)
+      System.out.print("Data is loaded!\n");
   }
 
   private static void checkData() throws Exception {
