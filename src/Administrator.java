@@ -52,7 +52,7 @@ public class Administrator {
       "CREATE TABLE IF NOT EXISTS Passengers(PID integer PRIMARY KEY, Pname varchar(30) NOT NULL)",
       "CREATE TABLE IF NOT EXISTS Vehicles(VID varchar(6) PRIMARY KEY, Model varchar(30) NOT NULL, Seats integer NOT NULL);",
       "CREATE TABLE IF NOT EXISTS Taxi_stops(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
-      "CREATE TABLE IF NOT EXISTS Trips(TID integer PRIMARY KEY, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Drivers(DID), FOREIGN KEY (PID) REFERENCES Passengers(PID));",
+      "CREATE TABLE IF NOT EXISTS Trips(TID integer PRIMARY KEY AUTO_INCREMENT, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Drivers(DID), FOREIGN KEY (PID) REFERENCES Passengers(PID));",
       "CREATE TABLE IF NOT EXISTS Requests(RID integer PRIMARY KEY AUTO_INCREMENT, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(1) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passengers(PID));"
     };
     Connection con = LoadServer.connect();

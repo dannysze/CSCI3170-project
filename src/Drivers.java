@@ -40,15 +40,15 @@ public class Drivers {
 		}
 	}
 	
-	private static void searchRequest() throws Exception {
+	private static void searchRequest(Scanner keyboard) throws Exception {
 
 	}
 
-	private static void takeRequest() throws Exception {
+	private static void takeRequest(Scanner keyboard) throws Exception {
 
 	}
 
-	private static void finishTrip() throws Exception {
-
+	private static void finishTrip(Scanner keyboard) throws Exception {
+		
 	}
 }
