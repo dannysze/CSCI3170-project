@@ -5,7 +5,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		
 		Connection conn = LoadServer.connect();
-		
+		conn.close();
 		Scanner keyboard = new Scanner(System.in);
 
 		services: while (true) {

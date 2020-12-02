@@ -48,9 +48,9 @@ public class Administrator {
   
 	private static void createTables() throws Exception {
 
-    String[] createTables = { "CREATE TABLE IF NOT EXISTS Drivers(DID integer PRIMARY KEY, Dname varchar(30) NOT NULL, VID varchar(6) NOT NULL, Driving_years integer);",
-      "CREATE TABLE IF NOT EXISTS Passengers(PID integer PRIMARY KEY, Pname varchar(30) NOT NULL)",
+    String[] createTables = { "CREATE TABLE IF NOT EXISTS Passengers(PID integer PRIMARY KEY, Pname varchar(30) NOT NULL)",
       "CREATE TABLE IF NOT EXISTS Vehicles(VID varchar(6) PRIMARY KEY, Model varchar(30) NOT NULL, Seats integer NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS Drivers(DID integer PRIMARY KEY, Dname varchar(30) NOT NULL, VID varchar(6) NOT NULL, Driving_years integer, FOREIGN KEY (VID) REFERENCES Vehicles(VID));",
       "CREATE TABLE IF NOT EXISTS Taxi_stops(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
       "CREATE TABLE IF NOT EXISTS Trips(TID integer PRIMARY KEY AUTO_INCREMENT, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Drivers(DID), FOREIGN KEY (PID) REFERENCES Passengers(PID));",
       "CREATE TABLE IF NOT EXISTS Requests(RID integer PRIMARY KEY AUTO_INCREMENT, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(1) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passengers(PID));"
@@ -73,7 +73,7 @@ public class Administrator {
   }
   
   private static void deleteTables() throws Exception {
-    String[] deleteTables = { "Requests", "Trips", "Vehicles", "Taxi_stops", "Drivers", "Passengers"};
+    String[] deleteTables = { "Requests", "Trips", "Drivers", "Taxi_stops", "Vehicles", "Passengers"};
     Connection con = LoadServer.connect();
     for (int i = 0; i < deleteTables.length; i++) {
       try (PreparedStatement delete = con.prepareStatement("DROP TABLE IF EXISTS " +deleteTables[i])) {
@@ -97,8 +97,36 @@ public class Administrator {
     Connection con = LoadServer.connect();
     System.out.println("Please enter the folder path");
     String path = keyboard.next();
-    String filename = path + "/drivers.csv";
+
+    String filename = path + "/vehicles.csv";
     File file = new File(filename);
+    try {
+      Scanner inputStream = new Scanner(file);
+      while (inputStream.hasNext()) {
+        String data = inputStream.nextLine();
+        String[] values = data.split(",");
+        int seats = Integer.parseInt(values[2]);
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Vehicles VALUES ('"+values[0]+"', '"+values[1]+"', "+seats+");")) {
+          insert.executeUpdate();
+          insert.close();
+        } catch (SQLException e) {
+          System.out.println("SQLException: " + e.getMessage());
+          System.out.println("SQLState: " + e.getSQLState());
+          System.out.println("VendorError: " + e.getErrorCode());
+
+          success = false;
+        } finally {
+          System.out.print("\rProcessing... ");
+        }
+      }
+      inputStream.close();
+    } catch (FileNotFoundException e) {
+      System.out.println(e);
+      success = false;
+    }
+    
+    filename = path + "/drivers.csv";
+     file = new File(filename);
     try {
       Scanner inputStream = new Scanner(file);
       while (inputStream.hasNext()) {
@@ -192,33 +220,6 @@ public class Administrator {
         int pid = Integer.parseInt(values[2]);
         int fee = Integer.parseInt(values[7]);
         try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trips VALUES ("+tid+", "+did+", "+pid+", '"+values[3]+"', '"+values[4]+"', '"+values[5]+"', '"+values[6]+"', "+fee+");")) {
-          insert.executeUpdate();
-          insert.close();
-        } catch (SQLException e) {
-          System.out.println("SQLException: " + e.getMessage());
-          System.out.println("SQLState: " + e.getSQLState());
-          System.out.println("VendorError: " + e.getErrorCode());
-
-          success = false;
-        } finally {
-          System.out.print("\rProcessing... ");
-        }
-      }
-      inputStream.close();
-    } catch (FileNotFoundException e) {
-      System.out.println(e);
-      success = false;
-    }
-
-    filename = path + "/vehicles.csv";
-    file = new File(filename);
-    try {
-      Scanner inputStream = new Scanner(file);
-      while (inputStream.hasNext()) {
-        String data = inputStream.nextLine();
-        String[] values = data.split(",");
-        int seats = Integer.parseInt(values[2]);
-        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Vehicles VALUES ('"+values[0]+"', '"+values[1]+"', "+seats+");")) {
           insert.executeUpdate();
           insert.close();
         } catch (SQLException e) {

@@ -1,6 +1,8 @@
 import java.util.*;
 import java.io.*;
 import java.sql.*;
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime;  
 
 public class Drivers {
   
@@ -22,13 +24,13 @@ public class Drivers {
 			} finally {
 				switch (input) {
 					case 1: 
-						searchRequest();
+						searchRequest(keyboard);
 						break;
 					case 2: 
-						takeRequest();
+						takeRequest(keyboard);
 						break;
 					case 3: 
-						finishTrip();
+						finishTrip(keyboard);
 						break;
 					case 4: 
 						break services;
@@ -45,10 +47,240 @@ public class Drivers {
 	}
 
 	private static void takeRequest(Scanner keyboard) throws Exception {
+		Connection con = LoadServer.connect();
+		System.out.println("Please enter your ID.");
+		int did = -1;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = con.createStatement();
+			while (true) {
+				try {
+					did = keyboard.nextInt();
+				} catch (Exception e) {
+					keyboard.next();
+					System.out.println("[ERROR] Invalid input.");
+					continue;
+				}
+				
+				rs = stmt.executeQuery("SELECT * FROM Drivers WHERE DID = "+did+";");
+				if (!rs.isBeforeFirst()) {
+					System.out.println("[ERROR] Invalid input.");
+					continue;
+				} else {
+					if (rs != null) {
+						try {
+							rs.close();
+						} catch (SQLException e) {}
+						rs = null;
+					}
+
+					rs = stmt.executeQuery("SELECT * FROM Trips WHERE DID = "+did+" AND ISNULL(End_time);");
+					if (!rs.isBeforeFirst()) break;
+					else {
+						System.out.println("[ERROR] Driver is in an unfinished trip.");
+						return;
+					}
+				} 
+			}	
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {}
+				rs = null;
+			}
+		}
+
+		try {
+			rs = stmt.executeQuery("SELECT * FROM Requests R, Drivers D, Vehicles V, Passengers P WHERE P.PID = R.PID AND R.Taken = 'n' AND D.DID = "+did+" AND D.VID = V.VID AND D.Driving_years >= R.Driving_years AND V.Seats >= R.Passengers AND UPPER(V.Model) LIKE CONCAT(\"%\", UPPER(R.Model), \"%\");");
+			if (!rs.isBeforeFirst()) {
+				System.out.println("[ERROR] No suitable Requests.");
+				return;
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {}
+				rs = null;
+			}
+
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {}
+				stmt = null;
+			}
+		}
+
+		System.out.println("Please enter the request ID.");
+		int rid = -1;
+		try {
+			stmt = con.createStatement();
+			while (true) {
+				try {
+					rid = keyboard.nextInt();
+				} catch (Exception e) {
+					keyboard.next();
+					System.out.println("[ERROR] Invalid input.");
+					continue;
+				}
+				rs = stmt.executeQuery("SELECT * FROM Requests R, Drivers D, Vehicles V, Passengers P WHERE P.PID = R.PID AND R.RID = "+rid+" AND R.Taken = 'n' AND D.DID = "+did+" AND D.VID = V.VID AND D.Driving_years >= R.Driving_years AND V.Seats >= R.Passengers AND UPPER(V.Model) LIKE CONCAT(\"%\", UPPER(R.Model), \"%\");");
+				if (!rs.isBeforeFirst()) {
+					System.out.println("[ERROR] Invalid input.");
+					continue;
+				} else {
+					rs.next();
+					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+					LocalDateTime now = LocalDateTime.now();
+					try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trips (DID, PID, Start_time, Start_location, Destination, Fee) VALUES ("+did+", "+rs.getInt("PID")+", '"+dtf.format(now)+"', '"+rs.getString("Start_location")+"', '"+rs.getString("Destination")+"', 0);")) {
+						insert.executeUpdate();
+						insert.close();
+						System.out.println("Trip ID, Passenger name, Start");
+						System.out.println(rs.getInt("RID")+", "+rs.getString("Pname")+", "+dtf.format(now));
+						
+					} try (PreparedStatement delete = con.prepareStatement("DELETE FROM Requests WHERE RID = "+rs.getInt("RID")+";")) {
+						delete.executeUpdate();
+						delete.close();
+					} catch (SQLException e) {
+						System.out.println("SQLException: " + e.getMessage());
+						System.out.println("SQLState: " + e.getSQLState());
+						System.out.println("VendorError: " + e.getErrorCode());
+					} 
+					break;
+				}
+			}	
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {}
+				rs = null;
+			}
+
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {}
+				stmt = null;
+			}
+		}
 
 	}
 
 	private static void finishTrip(Scanner keyboard) throws Exception {
-		
+		Connection con = LoadServer.connect();
+	
+		System.out.println("Please enter your ID.");
+		int did = -1;
+		char c = ' ';
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("SELECT * FROM Trips WHERE ISNULL(End_time);");
+			if (!rs.isBeforeFirst()) {
+				System.out.println("[ERROR] There are no unfinished trip.");  // OR invalid DID
+				return;
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {}
+				rs = null;
+			}
+
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {}
+				stmt = null;
+			}
+		}
+		ResultSet trip = null;
+		try {
+			stmt = con.createStatement();
+			while (true) {
+				try {
+					did = keyboard.nextInt();
+				} catch (Exception e) {
+					keyboard.next();
+					System.out.println("[ERROR] Invalid input.");
+					continue;
+				}
+				
+				rs = stmt.executeQuery("SELECT * FROM Trips WHERE DID = "+did+" AND ISNULL(End_time);");
+				if (!rs.isBeforeFirst()) {
+					System.out.println("[ERROR] Driver is not in an unfinished trip.");  // OR invalid DID
+					continue;
+				} else {
+					break;
+				} 
+			}	
+
+			System.out.println("Do you wish to finish the trip? [y/n]");
+			loop: while (true) {
+				try {
+					c = keyboard.next().charAt(0);
+				} catch (Exception e) {
+					System.out.println("[ERROR] Invalid input.");
+					continue;
+				}
+				switch(Character.toLowerCase(c)) {
+					case 'y': 
+						rs.next();
+						PreparedStatement update = con.prepareStatement("UPDATE Trips SET End_time = CURRENT_TIMESTAMP(), Fee = TIMESTAMPDIFF(minute, Start_time, End_time) WHERE DID = "+rs.getInt("DID")+";");
+						update.executeUpdate();
+						System.out.println("Trip ID, Passenger name, Start, End, Fee");
+						trip = stmt.executeQuery("SELECT T.TID, P.Pname, T.Start_time, T.End_time, T.Fee FROM Trips T, Passengers P WHERE T.PID = P.PID AND T.TID = "+rs.getInt("TID")+";");
+						// trip.next();
+						while (trip.next()) {
+							System.out.println(trip.getInt("TID")+", "+trip.getString("Pname")+", "+trip.getString("Start_time")+", "+trip.getString("End_time")+", "+trip.getInt("Fee"));
+						}
+						break loop;
+						case 'n': 
+						break loop;
+					default:
+						System.out.println("[ERROR] Invalid input.");
+						break;
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("SQLState: " + e.getSQLState());
+			System.out.println("VendorError: " + e.getErrorCode());
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {}
+				rs = null;
+			}
+
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {}
+				stmt = null;
+			}
+		}
 	}
 }
