@@ -43,9 +43,127 @@ public class Drivers {
 	}
 	
 	private static void searchRequest(Scanner keyboard) throws Exception {
+		keyboard.nextLine();
+    Connection con = LoadServer.connect();
+    Statement stmt = null;
+    ResultSet rs = null;
+    String[] questions = {
+    "Please enter your ID.",
+    "Please enter the coordinates of your location.",
+    "Please enter the maximum distance from you to the passenger.",
+    };
+    int id, max_dist, coord_x, coord_y;
+	id = max_dist = coord_x = coord_y = 0;
 
+
+      try {
+        stmt = con.createStatement();
+        int i = 0;
+        while(i < 3){
+          String sc, sql;
+          int input;
+          boolean complete = false;
+          while(!complete){
+            sc = "";
+            input = -1;
+            System.out.println(questions[i]);
+            try{
+              sc = keyboard.nextLine().strip();
+              if(i==1)
+                if(!sc.matches("-?\\d+ -?\\d+")){
+                  System.out.println("[ERROR] Invalid input.");
+                  continue;
+				}
+			  if((i==0)||(i==2)){
+				if(!sc.matches("\\d+")){
+					System.out.println("[ERROR] Invalid input.");
+                  	continue;
+				}
+				else input = Integer.parseInt(sc);;
+			  }
+              
+              switch(i) {
+                case 0:
+                  id = input;
+                  sql = "SELECT * FROM Drivers WHERE DID = %d;";
+                  sql = String.format(sql, id);
+                  rs = stmt.executeQuery(sql);
+                  if(!rs.isBeforeFirst())
+                  {
+                    System.out.println("[ERROR] ID not found.");
+                    continue;
+                  }else complete = true;
+                  break;
+				case 1:
+				  String[] coord = sc.split("\\s+");
+				  coord_x = Integer.parseInt(coord[0]);
+				  coord_y = Integer.parseInt(coord[1]);
+                  complete = true;
+                  break;
+                case 2:
+                  max_dist = input;
+                  complete = true;
+                  break;
+                default:
+                  break;
+              }
+              
+            } catch (SQLException e) {
+              throw e;
+            } catch(Exception e){
+              keyboard.next();
+              continue;
+            } 
+          }
+          i++;     
+          if (i==3){
+			rs = stmt.executeQuery("SELECT R.RID as 'request ID', P.Pname as 'passenger name', R.Passengers as 'num of passengers', R.Start_location as 'start location', R.Destination as 'destination' FROM Requests R, Passengers P, Taxi_stops T, Drivers D, Vehicles V WHERE (R.Taken ='n') AND (P.PID = R.PID) AND (UPPER(V.Model) LIKE CONCAT('%', UPPER(R.Model), '%')) AND (V.Seats >= R.Passengers) AND (V.VID = D.VID) AND (D.DID = "+id+") AND (D.Driving_years >= R.Driving_years) AND (T.Tname = R.Start_location) AND ((ABS(T.Location_x - "+coord_x+") + ABS(T.Location_y - "+coord_y+")) <= "+max_dist+");");
+            if(!rs.isBeforeFirst()){
+              System.out.println("No suitable request found");
+            }
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int columnsNumber = rsmd.getColumnCount();
+            while (rs.next()) {
+                for (int j = 1; j <= columnsNumber; j++) {
+                    System.out.print(rsmd.getColumnLabel(j));
+                    if (j < columnsNumber) System.out.print(", ");
+
+                }
+                System.out.println();
+                for (int j = 1; j <= columnsNumber; j++){
+                  String columnValue = rs.getString(j);
+                  System.out.print(columnValue);
+                  if (j < columnsNumber) System.out.print(", ");
+                }
+                System.out.println();
+            }
+          
+          }
+        }
+        
+      } catch (SQLException e) {
+        System.out.println("SQLException: " + e.getMessage());
+        System.out.println("SQLState: " + e.getSQLState());
+        System.out.println("VendorError: " + e.getErrorCode());
+      } finally {
+        if (rs != null) {
+          try {
+            rs.close();
+          } catch (SQLException e) {}
+          rs = null;
+        }
+
+        if (stmt != null) {
+          try {
+            stmt.close();
+          } catch (SQLException e) {}
+          stmt = null;
+        }
+      }
+    
+    con.close();
 	}
-
+ 
 	private static void takeRequest(Scanner keyboard) throws Exception {
 		Connection con = LoadServer.connect();
 		System.out.println("Please enter your ID.");
