@@ -85,7 +85,7 @@ public class Drivers {
               switch(i) {
                 case 0:
                   id = input;
-                  sql = "SELECT * FROM Drivers WHERE DID = %d;";
+                  sql = "SELECT * FROM Driver WHERE DID = %d;";
                   sql = String.format(sql, id);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -117,7 +117,7 @@ public class Drivers {
           }
           i++;     
           if (i==3){
-			rs = stmt.executeQuery("SELECT R.RID as 'request ID', P.Pname as 'passenger name', R.Passengers as 'num of passengers', R.Start_location as 'start location', R.Destination as 'destination' FROM Requests R, Passengers P, Taxi_stops T, Drivers D, Vehicles V WHERE (R.Taken ='n') AND (P.PID = R.PID) AND (UPPER(V.Model) LIKE CONCAT('%', UPPER(R.Model), '%')) AND (V.Seats >= R.Passengers) AND (V.VID = D.VID) AND (D.DID = "+id+") AND (D.Driving_years >= R.Driving_years) AND (T.Tname = R.Start_location) AND ((ABS(T.Location_x - "+coord_x+") + ABS(T.Location_y - "+coord_y+")) <= "+max_dist+");");
+			rs = stmt.executeQuery("SELECT R.RID as 'request ID', P.Pname as 'passenger name', R.Passengers as 'num of passengers', R.Start_location as 'start location', R.Destination as 'destination' FROM Request R, Passenger P, Taxi_stop T, Driver D, Vehicle V WHERE (R.Taken ='n') AND (P.PID = R.PID) AND (UPPER(V.Model) LIKE CONCAT('%', UPPER(R.Model), '%')) AND (V.Seats >= R.Passengers) AND (V.VID = D.VID) AND (D.DID = "+id+") AND (D.Driving_years >= R.Driving_years) AND (T.Tname = R.Start_location) AND ((ABS(T.Location_x - "+coord_x+") + ABS(T.Location_y - "+coord_y+")) <= "+max_dist+");");
             if(!rs.isBeforeFirst()){
               System.out.println("No suitable request found");
             }
@@ -181,7 +181,7 @@ public class Drivers {
 					continue;
 				}
 				
-				rs = stmt.executeQuery("SELECT * FROM Drivers WHERE DID = "+did+";");
+				rs = stmt.executeQuery("SELECT * FROM Driver WHERE DID = "+did+";");
 				if (!rs.isBeforeFirst()) {
 					System.out.println("[ERROR] Invalid input.");
 				} else {
@@ -192,7 +192,7 @@ public class Drivers {
 						rs = null;
 					}
 
-					rs = stmt.executeQuery("SELECT * FROM Trips WHERE DID = "+did+" AND ISNULL(End_time);");
+					rs = stmt.executeQuery("SELECT * FROM Trip WHERE DID = "+did+" AND ISNULL(End_time);");
 					if (!rs.isBeforeFirst()) break;
 					else {
 						System.out.println("[ERROR] Driver is in an unfinished trip.");
@@ -214,7 +214,7 @@ public class Drivers {
 		}
 
 		try {
-			rs = stmt.executeQuery("SELECT * FROM Requests R, Drivers D, Vehicles V, Passengers P WHERE P.PID = R.PID AND R.Taken = 'n' AND D.DID = "+did+" AND D.VID = V.VID AND D.Driving_years >= R.Driving_years AND V.Seats >= R.Passengers AND UPPER(V.Model) LIKE CONCAT(\"%\", UPPER(R.Model), \"%\");");
+			rs = stmt.executeQuery("SELECT * FROM Request R, Driver D, Vehicle V, Passenger P WHERE P.PID = R.PID AND R.Taken = 'n' AND D.DID = "+did+" AND D.VID = V.VID AND D.Driving_years >= R.Driving_years AND V.Seats >= R.Passengers AND UPPER(V.Model) LIKE CONCAT(\"%\", UPPER(R.Model), \"%\");");
 			if (!rs.isBeforeFirst()) {
 				System.out.println("[ERROR] No suitable Requests.");
 				return;
@@ -251,20 +251,20 @@ public class Drivers {
 					System.out.println("[ERROR] Invalid input.");
 					continue;
 				}
-				rs = stmt.executeQuery("SELECT * FROM Requests R, Drivers D, Vehicles V, Passengers P WHERE P.PID = R.PID AND R.RID = "+rid+" AND R.Taken = 'n' AND D.DID = "+did+" AND D.VID = V.VID AND D.Driving_years >= R.Driving_years AND V.Seats >= R.Passengers AND UPPER(V.Model) LIKE CONCAT(\"%\", UPPER(R.Model), \"%\");");
+				rs = stmt.executeQuery("SELECT * FROM Request R, Driver D, Vehicle V, Passenger P WHERE P.PID = R.PID AND R.RID = "+rid+" AND R.Taken = 'n' AND D.DID = "+did+" AND D.VID = V.VID AND D.Driving_years >= R.Driving_years AND V.Seats >= R.Passengers AND UPPER(V.Model) LIKE CONCAT(\"%\", UPPER(R.Model), \"%\");");
 				if (!rs.isBeforeFirst()) {
 					System.out.println("[ERROR] Invalid input.");
 				} else {
 					rs.next();
 					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 					LocalDateTime now = LocalDateTime.now();
-					try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trips (DID, PID, Start_time, Start_location, Destination, Fee) VALUES ("+did+", "+rs.getInt("PID")+", '"+dtf.format(now)+"', '"+rs.getString("Start_location")+"', '"+rs.getString("Destination")+"', 0);")) {
+					try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trip (DID, PID, Start_time, Start_location, Destination, Fee) VALUES ("+did+", "+rs.getInt("PID")+", '"+dtf.format(now)+"', '"+rs.getString("Start_location")+"', '"+rs.getString("Destination")+"', 0);")) {
 						insert.executeUpdate();
 						insert.close();
 						System.out.println("Trip ID, Passenger name, Start");
 						System.out.println(rs.getInt("RID")+", "+rs.getString("Pname")+", "+dtf.format(now));
 						
-					} try (PreparedStatement delete = con.prepareStatement("DELETE FROM Requests WHERE RID = "+rs.getInt("RID")+";")) {
+					} try (PreparedStatement delete = con.prepareStatement("DELETE FROM Request WHERE RID = "+rs.getInt("RID")+";")) {
 						delete.executeUpdate();
 						delete.close();
 					} catch (SQLException e) {
@@ -307,7 +307,7 @@ public class Drivers {
 		ResultSet rs = null;
 		try {
 			stmt = con.createStatement();
-			rs = stmt.executeQuery("SELECT * FROM Trips WHERE ISNULL(End_time);");
+			rs = stmt.executeQuery("SELECT * FROM Trip WHERE ISNULL(End_time);");
 			if (!rs.isBeforeFirst()) {
 				System.out.println("[ERROR] There are no unfinished trip.");  // OR invalid DID
 				return;
@@ -343,7 +343,7 @@ public class Drivers {
 					continue;
 				}
 				
-				rs = stmt.executeQuery("SELECT * FROM Trips WHERE DID = "+did+" AND ISNULL(End_time);");
+				rs = stmt.executeQuery("SELECT * FROM Trip WHERE DID = "+did+" AND ISNULL(End_time);");
 				if (!rs.isBeforeFirst()) {
 					System.out.println("[ERROR] Driver is not in an unfinished trip.");  // OR invalid DID
 				} else {
@@ -362,10 +362,10 @@ public class Drivers {
 				switch(Character.toLowerCase(c)) {
 					case 'y': 
 						rs.next();
-						PreparedStatement update = con.prepareStatement("UPDATE Trips SET End_time = CURRENT_TIMESTAMP(), Fee = TIMESTAMPDIFF(minute, Start_time, End_time) WHERE DID = "+rs.getInt("DID")+";");
+						PreparedStatement update = con.prepareStatement("UPDATE Trip SET End_time = CURRENT_TIMESTAMP(), Fee = TIMESTAMPDIFF(minute, Start_time, End_time) WHERE DID = "+rs.getInt("DID")+";");
 						update.executeUpdate();
 						System.out.println("Trip ID, Passenger name, Start, End, Fee");
-						trip = stmt.executeQuery("SELECT T.TID, P.Pname, T.Start_time, T.End_time, T.Fee FROM Trips T, Passengers P WHERE T.PID = P.PID AND T.TID = "+rs.getInt("TID")+";");
+						trip = stmt.executeQuery("SELECT T.TID, P.Pname, T.Start_time, T.End_time, T.Fee FROM Trip T, Passenger P WHERE T.PID = P.PID AND T.TID = "+rs.getInt("TID")+";");
 						// trip.next();
 						while (trip.next()) {
 							System.out.println(trip.getInt("TID")+", "+trip.getString("Pname")+", "+trip.getString("Start_time")+", "+trip.getString("End_time")+", "+trip.getInt("Fee"));

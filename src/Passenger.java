@@ -86,7 +86,7 @@ public class Passenger {
               switch(i) {
                 case 0:
                   id = input;
-                  sql = "SELECT * FROM Passengers WHERE PID = %d;";
+                  sql = "SELECT * FROM Passenger WHERE PID = %d;";
                   sql = String.format(sql, id);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -97,7 +97,7 @@ public class Passenger {
                   break;
                 case 1:
                   num_passenger = input;
-                  sql = "SELECT * FROM Vehicles WHERE Seats >= %d;";
+                  sql = "SELECT * FROM Vehicle WHERE Seats >= %d;";
                   sql = String.format(sql, num_passenger);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -108,7 +108,7 @@ public class Passenger {
                   break;
                 case 2:
                   start = sc;
-                  sql = "SELECT * FROM Taxi_stops WHERE Tname = '%s';";
+                  sql = "SELECT * FROM Taxi_stop WHERE Tname = '%s';";
                   sql = String.format(sql, start);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -123,7 +123,7 @@ public class Passenger {
                     System.out.println("[ERROR] Destination and start location should be different.");
                     continue;
                   }
-                  sql = "SELECT * FROM Taxi_stops WHERE Tname = '%s';";
+                  sql = "SELECT * FROM Taxi_stop WHERE Tname = '%s';";
                   sql = String.format(sql, end);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -138,7 +138,7 @@ public class Passenger {
                     complete = true; 
                   }else{
                     model = sc;
-                    sql = "SELECT * FROM Vehicles WHERE UPPER(Model) LIKE UPPER('%"+model+"%');";
+                    sql = "SELECT * FROM Vehicle WHERE UPPER(Model) LIKE UPPER('%"+model+"%');";
                     rs = stmt.executeQuery(sql);
                     if(!rs.isBeforeFirst())
                     {
@@ -153,7 +153,7 @@ public class Passenger {
                     complete = true;
                   }else{
                     driving_years = input;
-                    sql = "SELECT * FROM Drivers WHERE Driving_years >= %d;";
+                    sql = "SELECT * FROM Driver WHERE Driving_years >= %d;";
                     sql = String.format(sql, driving_years);
                     rs = stmt.executeQuery(sql);
                     if(!rs.isBeforeFirst())
@@ -176,7 +176,7 @@ public class Passenger {
           }
           i++;     
           if (i==6){
-            sql = "SELECT COUNT(*) as TOTAL FROM (SELECT * FROM Vehicles WHERE (UPPER(Model) LIKE UPPER('%"+model+"%')) AND (Seats >= "+num_passenger+")) as V, (SELECT * FROM Drivers WHERE Driving_years >= "+ driving_years+") as D WHERE V.VID = D.VID;";
+            sql = "SELECT COUNT(*) as TOTAL FROM (SELECT * FROM Vehicle WHERE (UPPER(Model) LIKE UPPER('%"+model+"%')) AND (Seats >= "+num_passenger+")) as V, (SELECT * FROM Driver WHERE Driving_years >= "+ driving_years+") as D WHERE V.VID = D.VID;";
             rs = stmt.executeQuery(sql);
             rs.next();
             if(rs.getInt("TOTAL") == 0)
@@ -185,7 +185,7 @@ public class Passenger {
               i = 1;
             }else{
               System.out.println("Your request is placed. " + rs.getInt("TOTAL") + " drivers are able to take the request.");
-              sql = "INSERT INTO Requests VALUES (NULL, "+id+", '"+start+"', '"+end+"', '"+model+"', "+num_passenger+",'n',"+driving_years+");";
+              sql = "INSERT INTO Request VALUES (NULL, "+id+", '"+start+"', '"+end+"', '"+model+"', "+num_passenger+",'n',"+driving_years+");";
               stmt.executeUpdate(sql);
             }
           }
@@ -263,7 +263,7 @@ public class Passenger {
               switch(i) {
                 case 0:
                   id = input;
-                  sql = "SELECT * FROM Passengers WHERE PID = %d;";
+                  sql = "SELECT * FROM Passenger WHERE PID = %d;";
                   sql = String.format(sql, id);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -287,7 +287,7 @@ public class Passenger {
                   break;
                 case 3:
                   end = sc;
-                  sql = "SELECT * FROM Taxi_stops WHERE Tname = '%s';";
+                  sql = "SELECT * FROM Taxi_stop WHERE Tname = '%s';";
                   sql = String.format(sql, end);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -309,7 +309,7 @@ public class Passenger {
           }
           i++;     
           if (i==4){
-            rs = stmt.executeQuery("SELECT TID as 'Trip_id' , Dname as 'Driver Name', VID as 'Vehicle ID', Model as 'Vehicle Model', Start_time as 'Start', End_time as 'End', Fee as 'Fee', Start_location as 'Start Location', Destination from Trips natural join Drivers natural join Vehicles where (PID="+id+") AND (DATE(Start_time)>='"+start_date+"') AND (DATE(End_time)<='"+end_date+"') AND (Destination ='"+end+"');");
+            rs = stmt.executeQuery("SELECT TID as 'Trip_id' , Dname as 'Driver Name', VID as 'Vehicle ID', Model as 'Vehicle Model', Start_time as 'Start', End_time as 'End', Fee as 'Fee', Start_location as 'Start Location', Destination from Trip natural join Driver natural join Vehicle where (PID="+id+") AND (DATE(Start_time)>='"+start_date+"') AND (DATE(End_time)<='"+end_date+"') AND (Destination ='"+end+"');");
             if(!rs.isBeforeFirst()){
               System.out.println("No record found");
             }

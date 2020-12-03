@@ -48,12 +48,12 @@ public class Administrator {
   
 	private static void createTables() throws Exception {
 
-    String[] createTables = { "CREATE TABLE IF NOT EXISTS Passengers(PID integer PRIMARY KEY, Pname varchar(30) NOT NULL)",
-      "CREATE TABLE IF NOT EXISTS Vehicles(VID varchar(6) PRIMARY KEY, Model varchar(30) NOT NULL, Seats integer NOT NULL);",
-      "CREATE TABLE IF NOT EXISTS Drivers(DID integer PRIMARY KEY, Dname varchar(30) NOT NULL, VID varchar(6) NOT NULL, Driving_years integer, FOREIGN KEY (VID) REFERENCES Vehicles(VID));",
-      "CREATE TABLE IF NOT EXISTS Taxi_stops(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
-      "CREATE TABLE IF NOT EXISTS Trips(TID integer PRIMARY KEY AUTO_INCREMENT, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Drivers(DID), FOREIGN KEY (PID) REFERENCES Passengers(PID));",
-      "CREATE TABLE IF NOT EXISTS Requests(RID integer PRIMARY KEY AUTO_INCREMENT, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(1) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passengers(PID));"
+    String[] createTables = { "CREATE TABLE IF NOT EXISTS Passenger(PID integer PRIMARY KEY, Pname varchar(30) NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS Vehicle(VID varchar(6) PRIMARY KEY, Model varchar(30) NOT NULL, Seats integer NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS Driver(DID integer PRIMARY KEY, Dname varchar(30) NOT NULL, VID varchar(6) NOT NULL, Driving_years integer, FOREIGN KEY (VID) REFERENCES Vehicle(VID));",
+      "CREATE TABLE IF NOT EXISTS Taxi_stop(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS Trip(TID integer PRIMARY KEY AUTO_INCREMENT, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Driver(DID), FOREIGN KEY (PID) REFERENCES Passenger(PID));",
+      "CREATE TABLE IF NOT EXISTS Request(RID integer PRIMARY KEY AUTO_INCREMENT, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(1) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passenger(PID));"
     };
     Connection con = LoadServer.connect();
     for (int i = 0; i < createTables.length; i++) {
@@ -73,7 +73,7 @@ public class Administrator {
   }
   
   private static void deleteTables() throws Exception {
-    String[] deleteTables = { "Requests", "Trips", "Drivers", "Taxi_stops", "Vehicles", "Passengers"};
+    String[] deleteTables = { "Request", "Trip", "Driver", "Taxi_stop", "Vehicle", "Passenger"};
     Connection con = LoadServer.connect();
     for (int i = 0; i < deleteTables.length; i++) {
       try (PreparedStatement delete = con.prepareStatement("DROP TABLE IF EXISTS " +deleteTables[i])) {
@@ -106,7 +106,7 @@ public class Administrator {
         String data = inputStream.nextLine();
         String[] values = data.split(",");
         int seats = Integer.parseInt(values[2]);
-        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Vehicles VALUES ('"+values[0]+"', '"+values[1]+"', "+seats+");")) {
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Vehicle VALUES ('"+values[0]+"', '"+values[1]+"', "+seats+");")) {
           insert.executeUpdate();
           insert.close();
         } catch (SQLException e) {
@@ -134,7 +134,7 @@ public class Administrator {
         String[] values = data.split(",");
         int id = Integer.parseInt(values[0]);
         int drivingYears = Integer.parseInt(values[3]);
-        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Drivers VALUES ("+id+", '"+values[1]+"', '"+values[2]+"', "+drivingYears+");")) {
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Driver VALUES ("+id+", '"+values[1]+"', '"+values[2]+"', "+drivingYears+");")) {
           insert.executeUpdate();
           insert.close();
         } catch (SQLException e) {
@@ -161,7 +161,7 @@ public class Administrator {
         String data = inputStream.nextLine();
         String[] values = data.split(",");
         int id = Integer.parseInt(values[0]);
-        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Passengers VALUES ("+id+", '"+values[1]+"');")) {
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Passenger VALUES ("+id+", '"+values[1]+"');")) {
           insert.executeUpdate();
           insert.close();
         } catch (SQLException e) {
@@ -189,7 +189,7 @@ public class Administrator {
         String[] values = data.split(",");
         int location_x = Integer.parseInt(values[1]);
         int location_y = Integer.parseInt(values[2]);
-        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Taxi_stops VALUES ('"+values[0]+"', "+location_x+", "+location_y+");")) {
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Taxi_stop VALUES ('"+values[0]+"', "+location_x+", "+location_y+");")) {
           insert.executeUpdate();
           insert.close();
         } catch (SQLException e) {
@@ -219,7 +219,7 @@ public class Administrator {
         int did = Integer.parseInt(values[1]);
         int pid = Integer.parseInt(values[2]);
         int fee = Integer.parseInt(values[7]);
-        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trips VALUES ("+tid+", "+did+", "+pid+", '"+values[3]+"', '"+values[4]+"', '"+values[5]+"', '"+values[6]+"', "+fee+");")) {
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trip VALUES ("+tid+", "+did+", "+pid+", '"+values[3]+"', '"+values[4]+"', '"+values[5]+"', '"+values[6]+"', "+fee+");")) {
           insert.executeUpdate();
           insert.close();
         } catch (SQLException e) {
@@ -243,9 +243,9 @@ public class Administrator {
   }
 
   private static void checkData() throws Exception {
-    System.out.println("Numbers of record in each table: \n");
+    System.out.println("Numbers of record in each table: ");
 
-    String[] checkTables = { "Vehicles", "Passengers", "Drivers", "Trips", "Requests", "Taxi_stops"};
+    String[] checkTables = { "Vehicle", "Passenger", "Driver", "Trip", "Request", "Taxi_stop"};
     Connection con = LoadServer.connect();
     Statement stmt = null;
     ResultSet rs = null;
@@ -254,7 +254,7 @@ public class Administrator {
         stmt = con.createStatement();
         rs = stmt.executeQuery("SELECT COUNT(*) AS TOTAL FROM " +checkTables[i]+";");
         rs.next();
-        System.out.println(checkTables[i]+": "+rs.getInt("TOTAL"));
+        System.out.println(checkTables[i]+" "+rs.getInt("TOTAL"));
       } catch (SQLException e) {
         System.out.println("SQLException: " + e.getMessage());
         System.out.println("SQLState: " + e.getSQLState());
