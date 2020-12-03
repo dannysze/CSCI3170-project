@@ -261,8 +261,11 @@ public class Drivers {
 					try (PreparedStatement insert = con.prepareStatement("INSERT INTO Trip (DID, PID, Start_time, Start_location, Destination, Fee) VALUES ("+did+", "+rs.getInt("PID")+", '"+dtf.format(now)+"', '"+rs.getString("Start_location")+"', '"+rs.getString("Destination")+"', 0);")) {
 						insert.executeUpdate();
 						insert.close();
+						Statement statement = con.createStatement();
+						ResultSet result = statement.executeQuery("SELECT MAX(TID) AS TID FROM Trip;");
 						System.out.println("Trip ID, Passenger name, Start");
-						System.out.println(rs.getInt("RID")+", "+rs.getString("Pname")+", "+dtf.format(now));
+						result.next();
+						System.out.println(result.getInt("TID")+", "+rs.getString("Pname")+", "+dtf.format(now));
 						
 					} try (PreparedStatement delete = con.prepareStatement("DELETE FROM Request WHERE RID = "+rs.getInt("RID")+";")) {
 						delete.executeUpdate();

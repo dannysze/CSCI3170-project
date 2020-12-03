@@ -243,7 +243,7 @@ public class Administrator {
   }
 
   private static void checkData() throws Exception {
-    System.out.println("Numbers of record in each table: ");
+    // System.out.println("Numbers of record in each table: ");
 
     String[] checkTables = { "Vehicle", "Passenger", "Driver", "Trip", "Request", "Taxi_Stop"};
     Connection con = LoadServer.connect();

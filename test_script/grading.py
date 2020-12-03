@@ -42,27 +42,30 @@ def run_testcase(src_dir, testcase, score):
     with open(unexpected_file) as f:
         unexpected = f.readlines()
     
-    cmd = "cat %s | java -cp .:mysql-connector-java-5.1.47.jar:%s Main" % (input_file, src_dir)
-    try:
-        output = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, timeout=5)
-    except subprocess.TimeoutExpired as err:
-        output = err
-    output = output.stdout.decode('utf-8').lower().split("\n")
+    output_file = os.path.join("output", testcase) 
+    cmd = 'cat %s | java -cp .:mysql-connector-java-5.1.47.jar:%s Main' % (input_file, src_dir)
+    p = subprocess.Popen('timeout 10 bash -c "%s > %s"' % (cmd, output_file), shell=True)
+    p.communicate()
+    with open(output_file) as f:
+        output = f.read(10000) # to truncate the output in case the students' code run into infinite loop when EOF
+    output = output.lower().split("\n")
     for line in expected:
         line = line.strip()
         keywords = line.split(" ")
         if not search_line(output, keywords):
             print("failed!")
-            print("\tplease check your output by running: %s" % cmd)
-            print("\tplease check the expected output keywords at: %s" % expected_file)
+            print("hint:\tplease check your output at: %s" % output_file)
+            print("\tto see what happened to your program, run: %s" % cmd)
+            print("\tyou can check the expected output keywords at: %s" % expected_file)
             return
     for line in unexpected:
         line = line.strip()
         keywords = line.split(" ")
         if search_line(output, keywords):
             print("failed!")
-            print("\tplease check your output by running: %s" % cmd)
-            print("\tplease check the expected output keywords at: %s" % expected_file)
+            print("hint:\tplease check your output at: %s" % output_file)
+            print("\tto see what happened to your program, run: %s" % cmd)
+            print("\tyou can check the expected output keywords at: %s" % expected_file)
             return
 
     global mark
