@@ -108,7 +108,7 @@ public class Passenger {
                   break;
                 case 2:
                   start = sc;
-                  sql = "SELECT * FROM Taxi_stop WHERE Tname = '%s';";
+                  sql = "SELECT * FROM Taxi_Stop WHERE Tname = '%s';";
                   sql = String.format(sql, start);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -123,7 +123,7 @@ public class Passenger {
                     System.out.println("[ERROR] Destination and start location should be different.");
                     continue;
                   }
-                  sql = "SELECT * FROM Taxi_stop WHERE Tname = '%s';";
+                  sql = "SELECT * FROM Taxi_Stop WHERE Tname = '%s';";
                   sql = String.format(sql, end);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())
@@ -287,7 +287,7 @@ public class Passenger {
                   break;
                 case 3:
                   end = sc;
-                  sql = "SELECT * FROM Taxi_stop WHERE Tname = '%s';";
+                  sql = "SELECT * FROM Taxi_Stop WHERE Tname = '%s';";
                   sql = String.format(sql, end);
                   rs = stmt.executeQuery(sql);
                   if(!rs.isBeforeFirst())

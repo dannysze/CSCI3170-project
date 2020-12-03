@@ -51,7 +51,7 @@ public class Administrator {
     String[] createTables = { "CREATE TABLE IF NOT EXISTS Passenger(PID integer PRIMARY KEY, Pname varchar(30) NOT NULL)",
       "CREATE TABLE IF NOT EXISTS Vehicle(VID varchar(6) PRIMARY KEY, Model varchar(30) NOT NULL, Seats integer NOT NULL);",
       "CREATE TABLE IF NOT EXISTS Driver(DID integer PRIMARY KEY, Dname varchar(30) NOT NULL, VID varchar(6) NOT NULL, Driving_years integer, FOREIGN KEY (VID) REFERENCES Vehicle(VID));",
-      "CREATE TABLE IF NOT EXISTS Taxi_stop(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS Taxi_Stop(Tname varchar(20) PRIMARY KEY, Location_x integer NOT NULL, Location_y integer NOT NULL);",
       "CREATE TABLE IF NOT EXISTS Trip(TID integer PRIMARY KEY AUTO_INCREMENT, DID integer NOT NULL, PID integer NOT NULL, Start_time datetime NOT NULL, End_time datetime, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Fee integer NOT NULL,  FOREIGN KEY (DID) REFERENCES Driver(DID), FOREIGN KEY (PID) REFERENCES Passenger(PID));",
       "CREATE TABLE IF NOT EXISTS Request(RID integer PRIMARY KEY AUTO_INCREMENT, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(1) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passenger(PID));"
     };
@@ -73,7 +73,7 @@ public class Administrator {
   }
   
   private static void deleteTables() throws Exception {
-    String[] deleteTables = { "Request", "Trip", "Driver", "Taxi_stop", "Vehicle", "Passenger"};
+    String[] deleteTables = { "Request", "Trip", "Driver", "Taxi_Stop", "Vehicle", "Passenger"};
     Connection con = LoadServer.connect();
     for (int i = 0; i < deleteTables.length; i++) {
       try (PreparedStatement delete = con.prepareStatement("DROP TABLE IF EXISTS " +deleteTables[i])) {
@@ -189,7 +189,7 @@ public class Administrator {
         String[] values = data.split(",");
         int location_x = Integer.parseInt(values[1]);
         int location_y = Integer.parseInt(values[2]);
-        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Taxi_stop VALUES ('"+values[0]+"', "+location_x+", "+location_y+");")) {
+        try (PreparedStatement insert = con.prepareStatement("INSERT INTO Taxi_Stop VALUES ('"+values[0]+"', "+location_x+", "+location_y+");")) {
           insert.executeUpdate();
           insert.close();
         } catch (SQLException e) {
@@ -245,7 +245,7 @@ public class Administrator {
   private static void checkData() throws Exception {
     System.out.println("Numbers of record in each table: ");
 
-    String[] checkTables = { "Vehicle", "Passenger", "Driver", "Trip", "Request", "Taxi_stop"};
+    String[] checkTables = { "Vehicle", "Passenger", "Driver", "Trip", "Request", "Taxi_Stop"};
     Connection con = LoadServer.connect();
     Statement stmt = null;
     ResultSet rs = null;

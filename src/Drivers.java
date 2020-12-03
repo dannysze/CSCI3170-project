@@ -117,7 +117,7 @@ public class Drivers {
           }
           i++;     
           if (i==3){
-			rs = stmt.executeQuery("SELECT R.RID as 'request ID', P.Pname as 'passenger name', R.Passengers as 'num of passengers', R.Start_location as 'start location', R.Destination as 'destination' FROM Request R, Passenger P, Taxi_stop T, Driver D, Vehicle V WHERE (R.Taken ='n') AND (P.PID = R.PID) AND (UPPER(V.Model) LIKE CONCAT('%', UPPER(R.Model), '%')) AND (V.Seats >= R.Passengers) AND (V.VID = D.VID) AND (D.DID = "+id+") AND (D.Driving_years >= R.Driving_years) AND (T.Tname = R.Start_location) AND ((ABS(T.Location_x - "+coord_x+") + ABS(T.Location_y - "+coord_y+")) <= "+max_dist+");");
+			rs = stmt.executeQuery("SELECT R.RID as 'request ID', P.Pname as 'passenger name', R.Passengers as 'num of passengers', R.Start_location as 'start location', R.Destination as 'destination' FROM Request R, Passenger P, Taxi_Stop T, Driver D, Vehicle V WHERE (R.Taken ='n') AND (P.PID = R.PID) AND (UPPER(V.Model) LIKE CONCAT('%', UPPER(R.Model), '%')) AND (V.Seats >= R.Passengers) AND (V.VID = D.VID) AND (D.DID = "+id+") AND (D.Driving_years >= R.Driving_years) AND (T.Tname = R.Start_location) AND ((ABS(T.Location_x - "+coord_x+") + ABS(T.Location_y - "+coord_y+")) <= "+max_dist+");");
             if(!rs.isBeforeFirst()){
               System.out.println("No suitable request found");
             }

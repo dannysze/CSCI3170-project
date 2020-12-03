@@ -70,7 +70,7 @@ public class Manager {
     ResultSet rs = null;
     try {
       stmt = con.createStatement();
-      rs = stmt.executeQuery("SELECT TEMP.TID, D.Dname, P.Pname, TEMP.Start_location, TEMP.Destination, TEMP.Duration FROM (SELECT T.TID, T.Start_location, T.Destination, T.Fee AS Duration, T.DID, T.PID, ABS(TS2.Location_x-TS1.Location_x)+ABS(TS2.Location_y-TS1.Location_y) AS Distance FROM Trip T, Taxi_stop TS1, Taxi_stop TS2 WHERE T.Start_location = TS1.Tname AND T.Destination = TS2.Tname) AS TEMP, Driver D, Passenger P WHERE TEMP.PID = P.PID AND TEMP.DID = D.DID AND Distance >= "+min+" AND Distance <= "+max+";");
+      rs = stmt.executeQuery("SELECT TEMP.TID, D.Dname, P.Pname, TEMP.Start_location, TEMP.Destination, TEMP.Duration FROM (SELECT T.TID, T.Start_location, T.Destination, T.Fee AS Duration, T.DID, T.PID, ABS(TS2.Location_x-TS1.Location_x)+ABS(TS2.Location_y-TS1.Location_y) AS Distance FROM Trip T, Taxi_Stop TS1, Taxi_Stop TS2 WHERE T.Start_location = TS1.Tname AND T.Destination = TS2.Tname) AS TEMP, Driver D, Passenger P WHERE TEMP.PID = P.PID AND TEMP.DID = D.DID AND Distance >= "+min+" AND Distance <= "+max+";");
       System.out.println("trip id, driver name, passenger name, start location, destination, duration");
       while (rs.next()) {
         System.out.println(rs.getInt("TID")+", "+rs.getString("Dname")+", "+rs.getString("Pname")+", "+rs.getString("Start_location")+", "+rs.getString("Destination")+", "+rs.getInt("Duration"));
