@@ -68,7 +68,8 @@ public class Drivers {
             input = -1;
             System.out.println(questions[i]);
             try{
-              sc = keyboard.nextLine().strip();
+							sc = keyboard.nextLine();
+							sc = sc.trim();
               if(i==1)
                 if(!sc.matches("-?\\d+ -?\\d+")){
                   System.out.println("[ERROR] Invalid input.");

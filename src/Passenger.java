@@ -66,7 +66,8 @@ public class Passenger {
             input = -1;
             System.out.println(questions[i]);
             try{
-              sc = keyboard.nextLine().strip();
+              sc = keyboard.nextLine();
+              sc = sc.trim();
               if(sc.matches("\\d+")){
                 input = Integer.parseInt(sc);
                 if((i==1)&&!(input>0)){
@@ -242,7 +243,8 @@ public class Passenger {
             input = -1;
             System.out.println(questions[i]);
             try{
-              sc = keyboard.nextLine().strip();
+              sc = keyboard.nextLine();
+              sc = sc.trim();
               if(((i==1)||(i==2)))
                 if(!sc.matches("\\d{4}-(0[1-9]|1[012])-([012][0-9]|3[01])")){
                   System.out.println("[ERROR] Invalid input.");
