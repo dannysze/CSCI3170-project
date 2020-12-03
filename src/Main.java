@@ -46,41 +46,5 @@ public class Main {
 		}
 		
 		keyboard.close();
-		// CreateTable();
-		// post();
-		// createTables();
-	}
-
-	public static void CreateTable() throws Exception {
-		try {
-			Connection con = LoadServer.connect();
-			PreparedStatement create = con.prepareStatement("CREATE TABLE IF NOT EXISTS S1(sid integer primary key, name varchar(30) not null, year integer, age integer);");
-			create.executeUpdate();
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("SQLState: " + e.getSQLState());
-			System.out.println("VendorError: " + e.getErrorCode());
-		} finally {
-			System.out.println("Table created successfully!");
-			
-		}
-	}
-
-	public static void post() throws Exception {
-		final int sid = 1;
-		final String name = "ABC";
-		
-		try { 
-			Connection con = LoadServer.connect();
-			PreparedStatement posted = con.prepareStatement("INSERT INTO S1 VALUES(" + sid + ", '" + name + "', NULL, NULL);");
-
-			posted.executeUpdate();
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("SQLState: " + e.getSQLState());
-			System.out.println("VendorError: " + e.getErrorCode());
-		} finally {
-			System.out.println("Date inserted successfully!");
-		}
 	}
 }

@@ -73,14 +73,13 @@ public class Drivers {
                 if(!sc.matches("-?\\d+ -?\\d+")){
                   System.out.println("[ERROR] Invalid input.");
                   continue;
-				}
-			  if((i==0)||(i==2)){
-				if(!sc.matches("\\d+")){
-					System.out.println("[ERROR] Invalid input.");
-                  	continue;
-				}
-				else input = Integer.parseInt(sc);;
-			  }
+								}
+								if((i==0)||(i==2)){
+									if(!sc.matches("\\d+")){
+										System.out.println("[ERROR] Invalid input.");
+										continue;
+									} else input = Integer.parseInt(sc);
+								}
               
               switch(i) {
                 case 0:
@@ -184,7 +183,6 @@ public class Drivers {
 				rs = stmt.executeQuery("SELECT * FROM Drivers WHERE DID = "+did+";");
 				if (!rs.isBeforeFirst()) {
 					System.out.println("[ERROR] Invalid input.");
-					continue;
 				} else {
 					if (rs != null) {
 						try {
@@ -255,7 +253,6 @@ public class Drivers {
 				rs = stmt.executeQuery("SELECT * FROM Requests R, Drivers D, Vehicles V, Passengers P WHERE P.PID = R.PID AND R.RID = "+rid+" AND R.Taken = 'n' AND D.DID = "+did+" AND D.VID = V.VID AND D.Driving_years >= R.Driving_years AND V.Seats >= R.Passengers AND UPPER(V.Model) LIKE CONCAT(\"%\", UPPER(R.Model), \"%\");");
 				if (!rs.isBeforeFirst()) {
 					System.out.println("[ERROR] Invalid input.");
-					continue;
 				} else {
 					rs.next();
 					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
@@ -348,7 +345,6 @@ public class Drivers {
 				rs = stmt.executeQuery("SELECT * FROM Trips WHERE DID = "+did+" AND ISNULL(End_time);");
 				if (!rs.isBeforeFirst()) {
 					System.out.println("[ERROR] Driver is not in an unfinished trip.");  // OR invalid DID
-					continue;
 				} else {
 					break;
 				} 

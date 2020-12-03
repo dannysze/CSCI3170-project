@@ -11,7 +11,7 @@ public class LoadServer { // Get Connection Obj
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection(dbAddress, dbUsername, dbPassword);
-			System.out.println("Connected");
+			// System.out.println("Connected");
 		} catch (ClassNotFoundException e) {
 			System.out.println("[ERROR]: Java MySQL Driver not found!!");
 			System.exit(1);
