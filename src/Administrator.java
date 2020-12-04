@@ -39,7 +39,7 @@ public class Administrator {
           case 5: 
             break services;
           default: 
-            System.out.println("Invalid input! Please try again.");
+            System.out.println("[ERROR] Invalid input.");
             break;
         }
       }
@@ -56,6 +56,7 @@ public class Administrator {
       "CREATE TABLE IF NOT EXISTS Request(RID integer PRIMARY KEY AUTO_INCREMENT, PID integer NOT NULL, Start_location varchar(20) NOT NULL, Destination varchar(20) NOT NULL, Model varchar(30) NOT NULL, Passengers integer NOT NULL, Taken varchar(1) NOT NULL, Driving_years integer NOT NULL, FOREIGN KEY (PID) REFERENCES Passenger(PID));"
     };
     Connection con = LoadServer.connect();
+    System.out.print("Processing...");
     for (int i = 0; i < createTables.length; i++) {
       try (PreparedStatement create = con.prepareStatement(createTables[i])) {
         create.executeUpdate();
@@ -64,7 +65,6 @@ public class Administrator {
         System.out.println("SQLState: " + e.getSQLState());
         System.out.println("VendorError: " + e.getErrorCode());
       } finally {
-        System.out.print("\rProcessing...");
       }
     }
     System.out.print("Done! Tables are created!\n");
@@ -75,6 +75,7 @@ public class Administrator {
   private static void deleteTables() throws Exception {
     String[] deleteTables = { "Request", "Trip", "Driver", "Taxi_Stop", "Vehicle", "Passenger"};
     Connection con = LoadServer.connect();
+    System.out.print("\rProcessing...");
     for (int i = 0; i < deleteTables.length; i++) {
       try (PreparedStatement delete = con.prepareStatement("DROP TABLE IF EXISTS " +deleteTables[i])) {
       delete.executeUpdate();
@@ -83,7 +84,6 @@ public class Administrator {
         System.out.println("SQLState: " + e.getSQLState());
         System.out.println("VendorError: " + e.getErrorCode());
       } finally {
-        System.out.print("\rProcessing...");
       }
     }
     System.out.print("Done! Tables are deleted!\n");
@@ -97,7 +97,8 @@ public class Administrator {
     Connection con = LoadServer.connect();
     System.out.println("Please enter the folder path");
     String path = keyboard.next();
-
+    
+    System.out.print("Processing... ");
     String filename = path + "/vehicles.csv";
     File file = new File(filename);
     try {
@@ -116,7 +117,6 @@ public class Administrator {
 
           success = false;
         } finally {
-          System.out.print("\rProcessing... ");
         }
       }
       inputStream.close();
@@ -144,7 +144,7 @@ public class Administrator {
 
           success = false;
         } finally {
-          System.out.print("\rProcessing... ");
+          // System.out.print("\rProcessing... ");
         }
       }
       inputStream.close();
@@ -171,7 +171,7 @@ public class Administrator {
 
           success = false;
         } finally {
-          System.out.print("\rProcessing... ");
+          // System.out.print("\rProcessing... ");
         }
       }
       inputStream.close();
@@ -199,7 +199,7 @@ public class Administrator {
 
           success = false;
         } finally {
-          System.out.print("\rProcessing... ");
+          // System.out.print("\rProcessing... ");
         }
       }
       inputStream.close();
@@ -229,7 +229,7 @@ public class Administrator {
 
           success = false;
         } finally {
-          System.out.print("\rProcessing... ");
+          // System.out.print("\rProcessing... ");
         }
       }
       inputStream.close();
@@ -243,7 +243,7 @@ public class Administrator {
   }
 
   private static void checkData() throws Exception {
-    // System.out.println("Numbers of record in each table: ");
+    System.out.println("Numbers of record in each table: ");
 
     String[] checkTables = { "Vehicle", "Passenger", "Driver", "Trip", "Request", "Taxi_Stop"};
     Connection con = LoadServer.connect();

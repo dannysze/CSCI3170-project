@@ -35,7 +35,7 @@ public class Drivers {
 					case 4: 
 						break services;
 					default: 
-						System.out.println("Invalid input! Please try again.");
+						System.out.println("[ERROR] Invalid input.");
 						break;
 				}
 			}
